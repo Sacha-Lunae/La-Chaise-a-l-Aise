@@ -1,4 +1,4 @@
 _cache_img
 google_adk-.*.whl
 _tmp*
-.env
+.env*:Zone.Identifier
