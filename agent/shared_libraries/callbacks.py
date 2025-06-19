@@ -22,7 +22,7 @@ from google.adk.models import LlmRequest
 from typing import Any, Dict
 from google.adk.tools import BaseTool
 from google.adk.agents.invocation_context import InvocationContext
-from my_agent.entities.user import User
+from agent.entities.user import User
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -43,8 +43,8 @@ def rate_limit_callback(
     """
     for content in llm_request.contents:
         for part in content.parts:
-            if part.text=="":
-                part.text=" "
+            if part.text == "":
+                part.text = " "
 
     now = time.time()
     if "timer_start" not in callback_context.state:
