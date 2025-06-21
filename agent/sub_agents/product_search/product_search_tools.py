@@ -16,7 +16,6 @@ def product_similarity(tool_context: ToolContext) -> dict:
     logging.info("[Product Similarity Tool] Invoked.")
 
     try:
-        # Log the entire state to verify the structure
         logging.info(f"[Product Similarity Tool] tool_context.state contents: {tool_context.state}")
 
         # Extract GCS URI from state
@@ -63,7 +62,7 @@ def get_json(link):
             "productCategories": [
               "homegoods-v2"
             ],
-            "filter": ""
+            "filter": "product_brand=MDM"
           }
         }
       }
@@ -82,7 +81,7 @@ def get_mkp_products(link):
     Returns:
         str: Réponse JSON brute de l'API Google Cloud Vision.
     """
-    
+
     url = "https://vision.googleapis.com/v1/images:annotate"
 
     credentials, project = default()

@@ -11,15 +11,13 @@ from .shared_libraries.callbacks import (
     before_tool,
     before_model,
 )
-# from .shared_libraries.image_tools import (
-#     extract_image_part,
-#     upload_image_to_gcs
-# )
+
 from .sub_agents.SQL.agent import sql_generator_agent
 from .sub_agents.BigQuery.agent import bq_executor_agent
 from .sub_agents.Rag.agent import rag_agent
 from .sub_agents.add_to_cart.agent import add_to_cart_agent
-from .sub_agents.product_search.agent import product_similarity_agent
+from .sub_agents.product_search.product_search_tools import product_similarity
+
 from .tools import get_customer_profile, update_customer_profile
 
 warnings.filterwarnings("ignore", category=UserWarning, module=".*pydantic.*")
@@ -49,7 +47,7 @@ root_agent = Agent(
            AgentTool(agent=add_to_cart_agent),
            AgentTool(agent=rag_agent),
            AgentTool(agent=search_agent),
-           AgentTool(agent=product_similarity_agent),
+           product_similarity,
            get_customer_profile,
            update_customer_profile
            ],

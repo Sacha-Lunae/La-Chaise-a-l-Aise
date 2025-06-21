@@ -30,20 +30,6 @@ def extract_image_part(llm_request: LlmRequest) -> Optional[bytes]:
     logger.info("No image bytes found in the request.")
     return None
 
-# def image_search_tool(llm_request: LlmRequest, tool_context: ToolContext) -> dict:
-#     image_bytes = extract_image_part(llm_request)
-#     if not image_bytes:
-#         return {"status": "error", "message": "No image found in the request."}
-
-#     # Upload image_bytes to GCS (add your upload function here)
-#     gcs_uri = upload_image_to_gcs(image_bytes)  # You will need to implement this function
-
-#     # Call product similarity API
-#     response_text = get_mkp_products(gcs_uri)
-#     similar_products = quick_parse(response_text)
-
-#     return {"status": "success", "similar_products": list(similar_products["product"])}
-
 
 def upload_image_to_gcs(image_bytes: bytes, bucket_name: str = "hackathon-adk-images", prefix: str = "uploads/") -> str:
     """
