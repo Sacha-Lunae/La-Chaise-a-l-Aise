@@ -7,10 +7,15 @@ from google.adk import Agent
 from .prompts import agent_prompt
 from .config import Config
 from .shared_libraries.callbacks import (
-    rate_limit_callback,
+    # rate_limit_callback,
     before_agent,
     before_tool,
+    before_model,
 )
+# from .shared_libraries.image_tools import (
+#     extract_image_part,
+#     upload_image_to_gcs
+# )
 from .sub_agents.SQL.agent import sql_generator_agent
 from .sub_agents.BigQuery.agent import bq_executor_agent
 from .sub_agents.Rag.agent import rag_agent
@@ -40,8 +45,8 @@ root_agent = Agent(
     instruction=agent_prompt(),
     name=configs.agent_settings.name,
     tools=[
-           AgentTool(agent= sql_generator_agent),
-           AgentTool(agent= bq_executor_agent),
+           AgentTool(agent=sql_generator_agent),
+           AgentTool(agent=bq_executor_agent),
            AgentTool(agent=add_to_cart_agent),
            AgentTool(agent=rag_agent),
            AgentTool(agent=search_agent),
@@ -50,5 +55,6 @@ root_agent = Agent(
            ],
     before_tool_callback=before_tool,
     before_agent_callback=before_agent,
-    before_model_callback=rate_limit_callback,
+    # before_model_callback=rate_limit_callback,
+    before_model_callback=before_model,
 )

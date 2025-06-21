@@ -8,6 +8,8 @@ from google.adk.tools import BaseTool
 from google.adk.agents.invocation_context import InvocationContext
 from agent.entities.customer import Customer
 
+from agent.shared_libraries.image_tools import extract_image_part, upload_image_to_gcs
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
@@ -90,10 +92,48 @@ def before_tool(
 def before_agent(callback_context: InvocationContext):
     """
     Ensures a customer profile is loaded into state before the agent runs.
+    Also extracts and uploads any image in the original request to GCS.
     """
     if "customer:profile" not in callback_context.state:
-        callback_context.state["customer:profile"] = Customer.get_customer(
-            "123"
-        ).to_json()
+        callback_context.state["customer:profile"] = Customer.get_customer("123").to_json()
 
     logger.info("Loaded customer profile: %s", callback_context.state["customer:profile"])
+
+    # try:
+    #     if hasattr(callback_context, "original_request") and callback_context.original_request:
+    #         image_bytes = extract_image_part(callback_context.original_request)
+    #         if image_bytes:
+    #             gcs_uri = upload_image_to_gcs(image_bytes)
+    #             callback_context.state["uploaded_image_gcs_uri"] = gcs_uri
+    #             logger.info(f"Image uploaded successfully: {gcs_uri}")
+    #         else:
+    #             logger.info("No image found in user request.")
+    #     else:
+    #         logger.warning("No original_request found in callback_context.")
+    # except Exception as e:
+    #     logger.warning(f"Image upload failed: {e}")
+
+
+def before_model(callback_context: CallbackContext, llm_request: LlmRequest) -> None:
+    # Rate limiting logic
+    logger.info("Starting rate_limit_callback")
+    rate_limit_callback(callback_context, llm_request)
+    logger.info("Finished rate_limit_callback")
+
+    # Image upload logic
+    try:
+        if llm_request:
+            logger.info("Attempting to upload image to GCS...")
+            image_bytes = extract_image_part(llm_request)
+            if image_bytes:
+                logger.info("Image bytes extracted, uploading...")
+                gcs_uri = upload_image_to_gcs(image_bytes)
+                logger.info(f"Uploaded image to GCS: {gcs_uri}")
+                callback_context.state["uploaded_image_gcs_uri"] = gcs_uri
+                logger.info(f"Image uploaded successfully: {gcs_uri}")
+            else:
+                logger.info("No image found in user request.")
+        else:
+            logger.warning("No original_request found in callback_context.")
+    except Exception as e:
+        logger.warning(f"Image upload failed: {e}")

@@ -70,18 +70,11 @@ def get_mkp_products(link):
     
     url = "https://vision.googleapis.com/v1/images:annotate"
 
-    # start_time = time.time()
-
-    # print("Récupération des credentials...")
     credentials, project = default()
-    # print(f"Credentials obtenus en {time.time() - start_time:.2f}s")
 
-    # print("Refresh du token...")
     credentials.refresh(Request())
     access_token = credentials.token
-    # print(f"Token refreshé en {time.time() - start_time:.2f}s")
 
-    # Headers
     headers = {
         "Authorization": f"Bearer {access_token}",
         "x-goog-user-project": "mdm-data-prod",
@@ -90,10 +83,6 @@ def get_mkp_products(link):
 
     data = get_json(link)
     response = requests.post(url, headers=headers, json=data, timeout=(5, 30))
-
-    # print(f"Réponse reçue en {time.time() - start_time:.2f}s")
-    # print(f"Status Code: {response.status_code}")
-    # print(f"Response: {response.text}")
 
     return response.text
 
@@ -114,10 +103,10 @@ def quick_parse(response_text):
 
     """
     data = json.loads(response_text)
-    
+
     results_data = []
     ranking = 1
-    
+
     for response in data.get('responses', []):
         for result in response.get('productSearchResults', {}).get('results', []):
             if 'product' in result and 'displayName' in result['product']:
@@ -127,5 +116,5 @@ def quick_parse(response_text):
                     'similarity_score': result.get('score', 0.0)
                 })
                 ranking += 1
-    
+
     return pd.DataFrame(results_data)
