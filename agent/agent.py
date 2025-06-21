@@ -11,10 +11,11 @@ from .shared_libraries.callbacks import (
     before_agent,
     before_tool,
 )
-from .sub_agents.BigQuery.agent import bq_agent
+from .sub_agents.SQL.agent import sql_generator_agent
+from .sub_agents.BigQuery.agent import bq_executor_agent
 from .sub_agents.Rag.agent import rag_agent
 from .sub_agents.add_to_cart.agent import add_to_cart_agent
-from .tools import get_user_profile, update_user_profile
+from .tools import get_customer_profile, update_customer_profile
 
 warnings.filterwarnings("ignore", category=UserWarning, module=".*pydantic.*")
 
@@ -39,12 +40,14 @@ root_agent = Agent(
     instruction=agent_prompt(),
     name=configs.agent_settings.name,
     tools=[
-           AgentTool(agent= bq_agent),
+           AgentTool(agent= sql_generator_agent),
+           AgentTool(agent= bq_executor_agent),
            AgentTool(agent=add_to_cart_agent),
            AgentTool(agent=rag_agent),
            AgentTool(agent=search_agent),
-           get_user_profile,
-           update_user_profile],
+           get_customer_profile,
+           update_customer_profile
+           ],
     before_tool_callback=before_tool,
     before_agent_callback=before_agent,
     before_model_callback=rate_limit_callback,

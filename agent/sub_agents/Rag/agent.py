@@ -14,7 +14,7 @@ ask_vertex_retrieval = VertexAiRagRetrieval(
     ),
     rag_resources=[
         rag.RagResource(
-            rag_corpus="projects/310119937247/locations/europe-west3/ragCorpora/4611686018427387904"
+            rag_corpus="projects/data-sandbox-410808/locations/europe-west3/ragCorpora/4532873024948404224"
         )
     ],
     similarity_top_k=10,
@@ -24,7 +24,7 @@ ask_vertex_retrieval = VertexAiRagRetrieval(
 rag_agent = Agent(
     model='gemini-2.0-flash-001',
     name='ask_rag_agent',
-    instruction=return_instructions_root(),  # A CHANGER AVEC LE PROMPT
+    instruction=return_instructions_root(),
     tools=[
         ask_vertex_retrieval,
     ]

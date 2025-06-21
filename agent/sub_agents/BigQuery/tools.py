@@ -5,8 +5,8 @@ connector_tool = ApplicationIntegrationToolset(
     project="data-sandbox-410808",
     location="europe-west1",
     connection="bq-test-adk",
-    entity_operations={"datascience_playground.extract-products-adk": ["LIST"]},
-    # service_account_credentials="datasience-sa@data-sandbox-410808.iam.gserviceaccount.com",
-    # tool_name="bq_tool",
+    entity_operations={
+        "datascience_playground.extract_chairs_adk": ["LIST"],
+        "datascience_playground.extract_chairs_reviews_adk": ["LIST"],},
     tool_instructions=get_bq_prompt()
 )

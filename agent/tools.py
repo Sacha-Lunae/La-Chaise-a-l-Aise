@@ -1,15 +1,25 @@
 from google.adk.tools.tool_context import ToolContext
+from pydantic import BaseModel
+import json
 
-def get_user_profile(tool_context: ToolContext) -> dict:
-    """Retrieves the user's stored profile information.
-    
-    Args:
-        tool_context: Automatically provided by ADK.
-        
-    Returns:
-        dict: The user's profile data.
+
+class CustomerProfileUpdate(BaseModel):
+    field: str
+    value: str
+
+
+def get_customer_profile(tool_context: ToolContext) -> dict:
     """
-    profile = tool_context.state.get("user:profile", {})
+    Retrieves the customer's stored profile information.
+
+    Args:
+        tool_context: Provided automatically by ADK.
+
+    Returns:
+        dict: The customer's profile data and returning user status.
+    """
+    profile = tool_context.state.get("customer:profile", {})
+
     return {
         "status": "success",
         "profile": profile,
@@ -17,29 +27,32 @@ def get_user_profile(tool_context: ToolContext) -> dict:
     }
 
 
-def update_user_profile(field: str, value: str, tool_context: ToolContext) -> dict:
-    """Updates a specific field in the user's profile.
-    
-    Args:
-        field: The profile field to update (e.g., "name", "occupation").
-        value: The value to store.
-        tool_context: Automatically provided by ADK.
-        
-    Returns:
-        dict: Status of the operation.
+def update_customer_profile(update: CustomerProfileUpdate, tool_context: ToolContext) -> dict:
     """
-    profile = tool_context.state.get("user:profile", {})
-    
-    # S'assurer que profile est un dictionnaire
+    Updates a specific field in the customer's profile.
+
+    Args:
+        field: The profile field to update (e.g., "first_name", "loyalty_tier").
+        value: The value to assign to that field.
+        tool_context: Provided automatically by ADK.
+
+    Returns:
+        dict: Status of the update operation.
+    """
+    profile = tool_context.state.get("customer:profile", {})
+
+    import json
     if isinstance(profile, str):
         try:
-            # Si c'est une chaîne JSON, essayer de la convertir
-            import json
             profile = json.loads(profile)
         except json.JSONDecodeError:
-            # Si la conversion échoue, initialiser un nouveau dictionnaire
-            return {"status": "error - no profile found"}
-    
-    profile[field] = value
-    tool_context.state["user:profile"] = profile
-    return {"status": "success", "field": field, "value": value}
+            return {"status": "error", "message": "Invalid profile format"}
+
+    profile[update.field] = update.value
+    tool_context.state["customer:profile"] = profile
+
+    return {
+        "status": "success",
+        "field": update.field,
+        "value": update.value
+    }
