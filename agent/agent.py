@@ -12,7 +12,7 @@ from .shared_libraries.callbacks import (
     before_model,
 )
 
-from .sub_agents.SQL.agent import sql_generator_agent
+from .sub_agents.SQL.agent import sql_inspector_agent
 from .sub_agents.BigQuery.agent import bq_executor_agent
 from .sub_agents.Rag.agent import rag_agent
 from .sub_agents.add_to_cart.agent import add_to_cart_agent
@@ -30,19 +30,19 @@ logger = logging.getLogger(__name__)
 search_agent = Agent(
     name="google_search_agent",
     model=configs.agent_settings.model,
-    global_instruction="You help a customer of Maisons du Monde to choose furniture and decoration products.",
-    instruction="Your job is to provide info from scopes outside Maisons du Monde. Stay focused on the furniture and decoration topics, ignore not related questions.  Always cite your source.",
+    global_instruction="You help a customer to choose and buy chairs.",
+    instruction="Your job is to provide info from scopes outside the shop database. Stay focused on the chair choice and purchase topics, ignore not related questions.  Always cite your source.",
     tools=[google_search],
     output_key="search_results"
 )
 
 root_agent = Agent(
     model=configs.agent_settings.model,
-    global_instruction="You help a customer of Maisons du Monde to choose and purchase furniture and decoration products.",
+    global_instruction="You help a customer to choose and buy chairs.",
     instruction=agent_prompt(),
     name=configs.agent_settings.name,
     tools=[
-           AgentTool(agent=sql_generator_agent),
+           AgentTool(agent=sql_inspector_agent),
            AgentTool(agent=bq_executor_agent),
            AgentTool(agent=add_to_cart_agent),
            AgentTool(agent=rag_agent),

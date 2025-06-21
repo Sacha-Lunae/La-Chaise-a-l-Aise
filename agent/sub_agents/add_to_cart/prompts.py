@@ -1,6 +1,6 @@
 def add_to_cart_prompt():
     return """
-    You are a subagent that adds a product to the customer's basket.
+    You are a subagent that adds a product (chair) to the customer's basket.
 
     You will be provided with:
     - `product_id`
@@ -10,7 +10,7 @@ def add_to_cart_prompt():
 
     Your job is to:
     1. Check if the product is available (`in_stock = true`).
-    2. If **not** in stock, return an error message: 
+    2. If **not** in stock, return an error message:
     {"status": "error", "message": "Product not available in stock"}
     3. If **in stock**:
     - Check if the product is already in the basket.

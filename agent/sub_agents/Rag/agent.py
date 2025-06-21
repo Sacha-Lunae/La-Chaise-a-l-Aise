@@ -25,7 +25,5 @@ rag_agent = Agent(
     model='gemini-2.0-flash-001',
     name='ask_rag_agent',
     instruction=return_instructions_root(),
-    tools=[
-        ask_vertex_retrieval,
-    ]
+    tools=[ask_vertex_retrieval]
 )

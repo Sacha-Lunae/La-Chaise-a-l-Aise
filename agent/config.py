@@ -3,6 +3,7 @@ import logging
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import BaseModel, Field
 
+from .sub_agents.product_search.product_search_config import ProductSearchSettings
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -31,3 +32,4 @@ class Config(BaseSettings):
     CLOUD_LOCATION: str = Field(default="europe-west1")
     GENAI_USE_VERTEXAI: str = Field(default="1")
     API_KEY: str | None = Field(default="")
+    product_search_settings: ProductSearchSettings = Field(default=ProductSearchSettings())

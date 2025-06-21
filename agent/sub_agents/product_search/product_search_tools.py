@@ -4,15 +4,20 @@ import json
 from google.auth import default
 from google.auth.transport.requests import Request
 from google.adk.tools.tool_context import ToolContext
+
+from google.cloud import storage
+from ...config import Config
+
 import logging
 
 
 def product_similarity(tool_context: ToolContext) -> dict:
     """
     Calls the Vision Product Search API with the uploaded image's GCS URI
-    stored in the callback_context.state.
+    stored in the callback_context.state, and then deletes the image.
     """
     logging.info("[Product Similarity Tool] Invoked.")
+    gcs_uri = None
 
     try:
         logging.info(f"[Product Similarity Tool] tool_context.state contents: {tool_context.state}")
@@ -35,6 +40,27 @@ def product_similarity(tool_context: ToolContext) -> dict:
     except Exception as e:
         logging.exception("[Product Similarity Tool] Exception occurred:")
         return {"status": "error", "message": str(e)}
+    finally:
+        if gcs_uri:
+            _delete_gcs_blob(gcs_uri)
+
+
+def _delete_gcs_blob(gcs_uri: str):
+    """Deletes a blob from the given GCS URI."""
+    if not gcs_uri or not gcs_uri.startswith("gs://"):
+        logging.warning(f"Invalid or missing GCS URI for deletion: {gcs_uri}")
+        return
+
+    try:
+        storage_client = storage.Client()
+        # The gcs_uri is in the format gs://<bucket_name>/<blob_name>
+        bucket_name, blob_name = gcs_uri.replace("gs://", "").split("/", 1)
+        bucket = storage_client.bucket(bucket_name)
+        blob = bucket.blob(blob_name)
+        blob.delete()
+        logging.info(f"Blob {gcs_uri} deleted successfully.")
+    except Exception as e:
+        logging.exception(f"Failed to delete blob {gcs_uri}: {e}")
 
 
 def get_json(link):
@@ -59,12 +85,11 @@ def get_json(link):
         ],
         "imageContext": {
           "productSearchParams": {
-            # TODO: Move productSet to a configuration file
-            "productSet": "projects/mdm-data-prod/locations/europe-west1/productSets/product_set2",
+            "productSet": Config().product_search_settings.product_set_uri,
             "productCategories": [
-              "homegoods-v2"
+              *Config().product_search_settings.product_categories
             ],
-            "filter": "product_brand=MDM"
+            "filter": Config().product_search_settings.product_filter
           }
         }
       }
@@ -94,8 +119,7 @@ def get_mkp_products(link):
 
     headers = {
         "Authorization": f"Bearer {access_token}",
-        # TODO: Move user project to a configuration file
-        "x-goog-user-project": "mdm-data-prod",
+        "x-goog-user-project": Config().product_search_settings.google_user_project,
         "Content-Type": "application/json; charset=utf-8"
     }
 
