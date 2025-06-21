@@ -27,7 +27,7 @@ Here are the sub-agents and tools at your disposal:
 5.  **Add to Cart Agent (add_to_cart_agent):**
     * **Purpose:** Use this agent when the user needs to **add one or several products to the basket on the website.
 
-6.  **Product Similarity Agent (product_similarity_agent):**
+6.  **Product Similarity Agent (product_similarity):**
     * **Purpose:** Use this agent when the user provides an image and asks for **similar products or product recommendations based on that image.** This agent will analyze the image and return relevant product suggestions.
     * **Usage:** You should call this agent when the user provides an image link and requests similar products.
 

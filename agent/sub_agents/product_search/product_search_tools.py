@@ -1,5 +1,4 @@
 from __future__ import annotations
-import pandas as pd
 import requests
 import json
 from google.auth import default
@@ -28,8 +27,7 @@ def product_similarity(tool_context: ToolContext) -> dict:
         response_text = get_mkp_products(gcs_uri)
         logging.info(f"[Product Similarity Tool] API raw response: {response_text}")
 
-        df_output = quick_parse(response_text)
-        list_similar_products = list(df_output["product"])
+        list_similar_products = quick_parse(response_text)
         logging.info(f"[Product Similarity Tool] Parsed similar products: {list_similar_products}")
 
         return {"status": "success", "similar_products": list_similar_products}
@@ -41,7 +39,10 @@ def product_similarity(tool_context: ToolContext) -> dict:
 
 def get_json(link):
     """
-    Fonction qui génère la requète au format Json
+    Generates the request in JSON format.
+
+    Args:
+        link (str): GCS URI of the image.
     """
     return {"requests": [
       {
@@ -58,6 +59,7 @@ def get_json(link):
         ],
         "imageContext": {
           "productSearchParams": {
+            # TODO: Move productSet to a configuration file
             "productSet": "projects/mdm-data-prod/locations/europe-west1/productSets/product_set2",
             "productCategories": [
               "homegoods-v2"
@@ -73,13 +75,14 @@ def get_json(link):
 def get_mkp_products(link):
 
     """
-    Interroge l'API Google Cloud Vision AI Product Search pour trouver des produits similaires à une image GCS.
-    Gère l'authentification Google Cloud, construit et envoie la requête API.
+    Queries the Google Cloud Vision AI Product Search API to find products similar to a GCS image.
+    Handles Google Cloud authentication, builds, and sends the API request.
+
     Args:
-        link (str): URI Google Cloud Storage (GCS) de l'image.
+        link (str): Google Cloud Storage (GCS) URI of the image.
 
     Returns:
-        str: Réponse JSON brute de l'API Google Cloud Vision.
+        str: Raw JSON response from the Google Cloud Vision API.
     """
 
     url = "https://vision.googleapis.com/v1/images:annotate"
@@ -91,6 +94,7 @@ def get_mkp_products(link):
 
     headers = {
         "Authorization": f"Bearer {access_token}",
+        # TODO: Move user project to a configuration file
         "x-goog-user-project": "mdm-data-prod",
         "Content-Type": "application/json; charset=utf-8"
     }
@@ -103,32 +107,23 @@ def get_mkp_products(link):
 
 def quick_parse(response_text):
     """
-    Analyse une chaîne JSON de résultats de recherche de produits en un DataFrame pandas.
+    Parses a JSON string of product search results into a list of product names.
 
-    Extrait l'id produit, le classement et le score de similarité des produits.
+    Extracts the product display name from the results.
 
     Args:
-        response_text (str): Chaîne JSON des résultats de recherche.
+        response_text (str): JSON string of search results.
 
     Returns:
-        pd.DataFrame: DataFrame avec les colonnes 'product', 'ranking', 'similarity_score'.
-                      Retourne un DataFrame vide si la structure n'est pas trouvée.
-
-
+        list[str]: A list of product display names.
+                   Returns an empty list if the structure is not found.
     """
     data = json.loads(response_text)
 
-    results_data = []
-    ranking = 1
-
+    product_names = []
     for response in data.get('responses', []):
         for result in response.get('productSearchResults', {}).get('results', []):
             if 'product' in result and 'displayName' in result['product']:
-                results_data.append({
-                    'product': result['product']['displayName'],
-                    'ranking': ranking,
-                    'similarity_score': result.get('score', 0.0)
-                })
-                ranking += 1
+                product_names.append(result['product']['displayName'])
 
-    return pd.DataFrame(results_data)
+    return product_names

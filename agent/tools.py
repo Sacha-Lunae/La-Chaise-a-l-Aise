@@ -41,7 +41,6 @@ def update_customer_profile(update: CustomerProfileUpdate, tool_context: ToolCon
     """
     profile = tool_context.state.get("customer:profile", {})
 
-    import json
     if isinstance(profile, str):
         try:
             profile = json.loads(profile)
