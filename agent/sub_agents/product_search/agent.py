@@ -20,11 +20,11 @@ configs = Config()
 logger = logging.getLogger(__name__)
 
 
-service_demand_agent = Agent(
+product_similarity_agent = Agent(
     model="gemini-2.0-flash-001",
     global_instruction="You help an employee of Maisons du Monde with diverse tasks.",
     instruction=agent_prompt(),
-    name="product_search_agent",
+    name="product_similarity_agent",
     tools=[
         product_similarity
     ],

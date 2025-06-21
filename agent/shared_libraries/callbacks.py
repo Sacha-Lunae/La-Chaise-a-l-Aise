@@ -99,20 +99,6 @@ def before_agent(callback_context: InvocationContext):
 
     logger.info("Loaded customer profile: %s", callback_context.state["customer:profile"])
 
-    # try:
-    #     if hasattr(callback_context, "original_request") and callback_context.original_request:
-    #         image_bytes = extract_image_part(callback_context.original_request)
-    #         if image_bytes:
-    #             gcs_uri = upload_image_to_gcs(image_bytes)
-    #             callback_context.state["uploaded_image_gcs_uri"] = gcs_uri
-    #             logger.info(f"Image uploaded successfully: {gcs_uri}")
-    #         else:
-    #             logger.info("No image found in user request.")
-    #     else:
-    #         logger.warning("No original_request found in callback_context.")
-    # except Exception as e:
-    #     logger.warning(f"Image upload failed: {e}")
-
 
 def before_model(callback_context: CallbackContext, llm_request: LlmRequest) -> None:
     # Rate limiting logic

@@ -4,24 +4,39 @@ import requests
 import json
 from google.auth import default
 from google.auth.transport.requests import Request
+from google.adk.tools.tool_context import ToolContext
+import logging
 
 
-def product_similarity(input_image_link: str):
+def product_similarity(tool_context: ToolContext) -> dict:
     """
-    Fonction qui appelle l'API avec le product set 2, récupère le classement des produits les plus similaires et leur score.
-    Ne retourne que 
+    Calls the Vision Product Search API with the uploaded image's GCS URI
+    stored in the callback_context.state.
     """
+    logging.info("[Product Similarity Tool] Invoked.")
+
     try:
+        # Log the entire state to verify the structure
+        logging.info(f"[Product Similarity Tool] tool_context.state contents: {tool_context.state}")
 
-        response_text = get_mkp_products(input_image_link)
+        # Extract GCS URI from state
+        gcs_uri = tool_context.state.get("uploaded_image_gcs_uri")
+        logging.info(f"[Product Similarity Tool] GCS URI received: {gcs_uri}")
+
+        if not gcs_uri:
+            return {"status": "error", "message": "No uploaded image found in context."}
+
+        response_text = get_mkp_products(gcs_uri)
+        logging.info(f"[Product Similarity Tool] API raw response: {response_text}")
 
         df_output = quick_parse(response_text)
-
         list_similar_products = list(df_output["product"])
+        logging.info(f"[Product Similarity Tool] Parsed similar products: {list_similar_products}")
 
         return {"status": "success", "similar_products": list_similar_products}
 
-    except Exception as e:  # Catch-all to avoid crashing the caller
+    except Exception as e:
+        logging.exception("[Product Similarity Tool] Exception occurred:")
         return {"status": "error", "message": str(e)}
 
 
