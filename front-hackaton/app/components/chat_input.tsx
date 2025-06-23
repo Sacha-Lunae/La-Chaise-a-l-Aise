@@ -4,16 +4,20 @@ import Image from 'next/image';
 interface ChatInputProps {
   onSendMessage: (text: string) => void;
   onSendImage?: (imageDataUrl: string, text?: string) => void;
+  disabled?: boolean; // Nouvelle prop pour désactiver l'input
 }
 
 // Chat Input Component
-const ChatInput = ({ onSendMessage, onSendImage }: ChatInputProps) => {
+const ChatInput = ({ onSendMessage, onSendImage, disabled = false }: ChatInputProps) => {
   const [inputText, setInputText] = useState('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSend = () => {
+    // Ne pas envoyer si désactivé
+    if (disabled) return;
+
     if (selectedImage && onSendImage) {
       // Envoyer l'image avec le texte optionnel
       onSendImage(selectedImage, inputText);
@@ -28,6 +32,9 @@ const ChatInput = ({ onSendMessage, onSendImage }: ChatInputProps) => {
   };
 
   const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // Ne pas permettre la sélection d'image si désactivé
+    if (disabled) return;
+
     const file = event.target.files?.[0];
     if (file) {
       // Vérifier le type de fichier
@@ -53,6 +60,9 @@ const ChatInput = ({ onSendMessage, onSendImage }: ChatInputProps) => {
   };
 
   const removeImage = () => {
+    // Ne pas permettre la suppression si désactivé
+    if (disabled) return;
+
     setSelectedImage(null);
     setImagePreview(null);
     if (fileInputRef.current) {
@@ -68,8 +78,13 @@ const ChatInput = ({ onSendMessage, onSendImage }: ChatInputProps) => {
   };
 
   const openFileDialog = () => {
+    // Ne pas ouvrir le dialogue si désactivé
+    if (disabled) return;
     fileInputRef.current?.click();
   };
+
+  // Calculer si le bouton d'envoi doit être désactivé
+  const isSendDisabled = disabled || (!inputText.trim() && !selectedImage);
 
   return (
     <div className="bg-[#F4F0EA] p-4">
@@ -81,11 +96,18 @@ const ChatInput = ({ onSendMessage, onSendImage }: ChatInputProps) => {
               <img 
                 src={imagePreview} 
                 alt="Preview" 
-                className="w-20 h-20 object-cover rounded-xl shadow-sm"
+                className={`w-20 h-20 object-cover rounded-xl shadow-sm ${
+                  disabled ? 'opacity-50' : ''
+                }`}
               />
               <button
                 onClick={removeImage}
-                className="absolute -top-2 -right-2 w-6 h-6 bg-[#CF6B82] text-white rounded-full flex items-center justify-center text-sm hover:bg-red-600 transition-colors shadow-sm"
+                disabled={disabled}
+                className={`absolute -top-2 -right-2 w-6 h-6 bg-[#CF6B82] text-white rounded-full flex items-center justify-center text-sm transition-colors shadow-sm ${
+                  disabled 
+                    ? 'opacity-50 cursor-not-allowed' 
+                    : 'hover:bg-red-600'
+                }`}
               >
                 ×
               </button>
@@ -100,31 +122,39 @@ const ChatInput = ({ onSendMessage, onSendImage }: ChatInputProps) => {
         type="file"
         accept="image/*"
         onChange={handleImageSelect}
+        disabled={disabled}
         className="hidden"
       />
 
       {/* Container principal avec bordure bleue pastel */}
-      <div className="flex items-center bg-[#D7DFCC] border border-[#778C61] rounded-lg px-4 py-3">
+      <div className={`flex items-center bg-[#D7DFCC] border border-[#778C61] rounded-lg px-4 py-3 transition-opacity ${
+        disabled ? 'opacity-50' : ''
+      }`}>
         {/* Bouton camera/upload */}
         <button 
           onClick={openFileDialog}
-          className="flex-shrink-0 p-2 group transition-all"
-          title="Add an image"
+          disabled={disabled}
+          className={`flex-shrink-0 p-2 group transition-all ${
+            disabled ? 'cursor-not-allowed' : ''
+          }`}
+          title={disabled ? "Chat disabled" : "Add an image"}
         >
           <Image 
             src="/camera.svg" 
             alt="Camera" 
             width={24} 
             height={24} 
-            className="group-hover:hidden"
+            className={disabled ? 'block' : 'group-hover:hidden'}
           />
-          <Image 
-            src="/camera2.svg" 
-            alt="Camera hover" 
-            width={24} 
-            height={24} 
-            className="hidden group-hover:block"
-          />
+          {!disabled && (
+            <Image 
+              src="/camera2.svg" 
+              alt="Camera hover" 
+              width={24} 
+              height={24} 
+              className="hidden group-hover:block"
+            />
+          )}
         </button>
         
         {/* Zone de texte */}
@@ -133,8 +163,11 @@ const ChatInput = ({ onSendMessage, onSendImage }: ChatInputProps) => {
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="What's the perfect chair for me ?"
-            className="w-full bg-transparent resize-none focus:outline-none text-[#345211] placeholder-[#8A9977] text-base"
+            disabled={disabled}
+            placeholder={disabled ? "Please wait..." : "What's the perfect chair for me ?"}
+            className={`w-full bg-transparent resize-none focus:outline-none text-[#345211] placeholder-[#8A9977] text-base ${
+              disabled ? 'cursor-not-allowed' : ''
+            }`}
             rows={1}
             style={{ 
               minHeight: '24px',
@@ -147,12 +180,13 @@ const ChatInput = ({ onSendMessage, onSendImage }: ChatInputProps) => {
         {/* Bouton d'envoi intégré */}
         <button
           onClick={handleSend}
-          disabled={!inputText.trim() && !selectedImage}
+          disabled={isSendDisabled}
           className={`flex-shrink-0 p-2 group transition-all ${
-            !(inputText.trim() || selectedImage) ? 'cursor-not-allowed' : ''
+            isSendDisabled ? 'cursor-not-allowed' : ''
           }`}
+          title={disabled ? "Chat disabled" : "Send message"}
         >
-          {(inputText.trim() || selectedImage) ? (
+          {(inputText.trim() || selectedImage) && !disabled ? (
             <>
               <Image 
                 src="/send.svg" 
@@ -182,9 +216,17 @@ const ChatInput = ({ onSendMessage, onSendImage }: ChatInputProps) => {
       </div>
 
       {/* Informations sur les fichiers acceptés */}
-      {!selectedImage && (
+      {!selectedImage && !disabled && (
         <div className="mt-3 text-xs text-gray-400 px-4">
           Formats acceptés: JPG, PNG, GIF (max 5MB)
+        </div>
+      )}
+      
+      {/* Message d'état quand désactivé */}
+      {disabled && (
+        <div className="mt-3 text-xs text-gray-500 px-4 flex items-center">
+          <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>
+          Sending message...
         </div>
       )}
     </div>
