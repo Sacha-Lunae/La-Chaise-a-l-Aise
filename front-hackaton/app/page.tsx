@@ -19,35 +19,14 @@ const sampleMessages: MessageType[] = [
   {
     id: 1,
     type: 'bot',
-    text: "Bonjour ! Prêt-e pour une expérience d'achat hors du commun ?\nDites-m'en plus sur vous et vos envies.",
+    text: "Welcome to La Chaise à l'Aise ! My name is Cherry, your shopping assistant, and I'm here to guide you to find the best chair for your home.\nThere's a lot you can do with me ! You should try : \n- asking me for decoratioin advice \n-send me a chair picture and I'll find the closest looking chairs into our data base \n- asking me for info about our products \n- adding items to your basket \nLet's start our journey !",
     timestamp: new Date(Date.now() - 300000)
-  },
-  {
-    id: 2,
-    type: 'user',
-    text: "Mon jardin fait environ 150m², et j'ai une piscine de 25m². J'aimerais me faire un espace détente à côté, qu'est-ce que tu me conseilles ?",
-    timestamp: new Date(Date.now() - 240000)
-  },
-  {
-    id: 3,
-    type: 'user',
-    text: "",
-    image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&h=250&fit=crop",
-    timestamp: new Date(Date.now() - 180000)
-  },
-  {
-    id: 4,
-    type: 'bot',
-    text: "C'est un bel espace ! Pour créer une zone détente près de votre piscine, je recommande :\n\n• Des transats confortables\n• Un parasol ou une pergola\n• Une table basse résistante\n• Des coussins d'extérieur",
-    timestamp: new Date(Date.now() - 120000)
   }
 ];
 
-// Main Playground Component
 export default function PlaygroundPage() {
   const [messages, setMessages] = useState<MessageType[]>(sampleMessages);
 
-  // Fonction pour ajouter un message texte
   const addMessage = (text: string) => {
     if (!text.trim()) return;
     
