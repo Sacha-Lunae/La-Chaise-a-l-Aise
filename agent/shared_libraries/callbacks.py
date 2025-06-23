@@ -22,7 +22,7 @@ from google.adk.models import LlmRequest
 from typing import Any, Dict
 from google.adk.tools import BaseTool
 from google.adk.agents.invocation_context import InvocationContext
-from my_agent.entities.user import User
+from agent.entities.user import User
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

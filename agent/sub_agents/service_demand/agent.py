@@ -17,7 +17,7 @@
 import logging
 import warnings
 from google.adk import Agent
-from ...config import Config
+from ...shared_libraries.config import Config
 from .prompts import agent_prompt
 from ...shared_libraries.callbacks import (
     rate_limit_callback,

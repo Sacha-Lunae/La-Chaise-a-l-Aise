@@ -26,8 +26,8 @@ const Message: React.FC<MessageProps> = ({ message, isBot }) => {
         <div
           className={`px-6 py-4 rounded-3xl shadow-sm ${
             isBot
-              ? 'bg-[#F4EEFF] text-[#736096] rounded-tl-lg'
-              : 'bg-[#E6ECF3] text-[#647488] rounded-tr-lg'
+              ? 'bg-[#FAD2DC] text-[#9A223D] rounded-tl-lg'
+              : 'bg-[#D7DFCC] text-[#345211] rounded-tr-lg'
           }`}
         >
           {message.image ? (
@@ -114,16 +114,16 @@ const ChatBot = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen max-w-5xl mx-auto bg-white">
+    <div className="flex flex-col h-screen max-w-5xl mx-auto bg-[#F4F0EA]">
       {/* Header simplifié */}
-      <div className="bg-white p-6 border-b border-gray-100">
+      <div className="bg-[#F4F0EA] p-6 border-b border-gray-100">
         <div className="text-right">
           <Image src="/logo2.svg" alt="Logo" />
         </div>
       </div>
 
       {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
+      <div className="flex-1 overflow-y-auto p-6 bg-[#F4F0EA]">
         <div className="space-y-2">
           {messages.map((message) => (
             <Message
@@ -148,7 +148,7 @@ const ChatBot = () => {
               onChange={(e) => setInputText(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Tapez votre message..."
-              className="w-full px-6 py-4 border border-gray-200 rounded-full resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+              className="w-full px-6 py-4 border border-gray-200 rounded-full resize-none focus:outline-none focus:ring-2 focus:ring-[#345211] focus:border-transparent text-base"
               rows={1}
               style={{ minHeight: '56px', maxHeight: '120px' }}
             />
@@ -157,7 +157,7 @@ const ChatBot = () => {
           <button
             onClick={handleSendMessage}
             disabled={!inputText.trim()}
-            className="flex-shrink-0 p-4 bg-blue-500 text-white rounded-full hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors shadow-sm"
+            className="flex-shrink-0 p-4 bg-[#345211] text-white rounded-full hover:bg-[#4D6F99] disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors shadow-sm"
           >
             <Image src="/camera.svg" alt="Camera" />
           </button>

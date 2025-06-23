@@ -72,10 +72,10 @@ const ChatInput = ({ onSendMessage, onSendImage }: ChatInputProps) => {
   };
 
   return (
-    <div className="bg-white border-t border-gray-100 p-6">
+    <div className="bg-[#F4F0EA] p-4">
       {/* Prévisualisation de l'image */}
       {imagePreview && (
-        <div className="mb-4 p-4 border border-gray-200 rounded-2xl bg-gray-50">
+        <div className="mb-4 p-4 border border-gray-200 rounded-2xl bg-[#F4F0EA]">
           <div className="flex items-start space-x-4">
             <div className="relative">
               <img 
@@ -85,75 +85,105 @@ const ChatInput = ({ onSendMessage, onSendImage }: ChatInputProps) => {
               />
               <button
                 onClick={removeImage}
-                className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-sm hover:bg-red-600 transition-colors shadow-sm"
+                className="absolute -top-2 -right-2 w-6 h-6 bg-[#CF6B82] text-white rounded-full flex items-center justify-center text-sm hover:bg-red-600 transition-colors shadow-sm"
               >
                 ×
               </button>
-            </div>
-            <div className="flex-1">
-              <p className="text-sm text-gray-600 mb-2 font-medium">Image sélectionnée</p>
-              <textarea
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                placeholder="Ajoutez un commentaire à votre image (optionnel)..."
-                className="w-full p-3 border border-gray-200 rounded-xl resize-none text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                rows={2}
-              />
             </div>
           </div>
         </div>
       )}
 
-      <div className="flex items-end space-x-4">
-        {/* Input de fichier caché */}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleImageSelect}
-          className="hidden"
-        />
+      {/* Input de fichier caché */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleImageSelect}
+        className="hidden"
+      />
 
+      {/* Container principal avec bordure bleue pastel */}
+      <div className="flex items-center bg-[#D7DFCC] border border-[#778C61] rounded-lg px-4 py-3">
         {/* Bouton camera/upload */}
         <button 
           onClick={openFileDialog}
-          className="flex-shrink-0 p-3 text-gray-400 hover:text-gray-600 transition-colors rounded-full hover:bg-gray-100"
+          className="flex-shrink-0 p-2 group transition-all"
           title="Ajouter une image"
         >
-          <Image src="/camera.svg" alt="Camera" width={24} height={24} />
+          <Image 
+            src="/camera.svg" 
+            alt="Camera" 
+            width={24} 
+            height={24} 
+            className="group-hover:hidden"
+          />
+          <Image 
+            src="/camera2.svg" 
+            alt="Camera hover" 
+            width={24} 
+            height={24} 
+            className="hidden group-hover:block"
+          />
         </button>
         
-        {/* Zone de texte (cachée si image sélectionnée) */}
-        {!selectedImage && (
-          <div className="flex-1 relative">
-            <textarea
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Tapez votre message..."
-              className="w-full px-6 py-4 border border-gray-200 rounded-full resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
-              rows={1}
-              style={{ minHeight: '56px', maxHeight: '120px' }}
-            />
-          </div>
-        )}
-        
+        {/* Zone de texte */}
+        <div className="flex-1 mx-3">
+          <textarea
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="Quelle est la chaise parfaite pour mon intérieur ?"
+            className="w-full bg-transparent resize-none focus:outline-none text-[#345211] placeholder-[#8A9977] text-base"
+            rows={1}
+            style={{ 
+              minHeight: '24px',
+              maxHeight: '120px',
+              lineHeight: '1.5'
+            }}
+          />
+        </div>
+
+        {/* Bouton d'envoi intégré */}
         <button
           onClick={handleSend}
           disabled={!inputText.trim() && !selectedImage}
-          className={`flex-shrink-0 p-4 rounded-full transition-colors shadow-sm ${
-            (inputText.trim() || selectedImage)
-              ? 'bg-blue-500 text-white hover:bg-blue-600'
-              : 'bg-gray-300 cursor-not-allowed'
+          className={`flex-shrink-0 p-2 group transition-all ${
+            !(inputText.trim() || selectedImage) ? 'cursor-not-allowed' : ''
           }`}
         >
-          <Image src="/send.svg" alt="Send" width={20} height={20} />
+          {(inputText.trim() || selectedImage) ? (
+            <>
+              <Image 
+                src="/send.svg" 
+                alt="Send" 
+                width={20} 
+                height={20} 
+                className="group-hover:hidden"
+              />
+              <Image 
+                src="/send2.svg" 
+                alt="Send hover" 
+                width={20} 
+                height={20} 
+                className="hidden group-hover:block"
+              />
+            </>
+          ) : (
+            <Image 
+              src="/send.svg" 
+              alt="Send" 
+              width={20} 
+              height={20} 
+              className="opacity-50"
+            />
+          )}
         </button>
       </div>
 
       {/* Informations sur les fichiers acceptés */}
       {!selectedImage && (
-        <div className="mt-2 text-xs text-gray-400 px-2">
+        <div className="mt-3 text-xs text-gray-400 px-4">
           Formats acceptés: JPG, PNG, GIF (max 5MB)
         </div>
       )}

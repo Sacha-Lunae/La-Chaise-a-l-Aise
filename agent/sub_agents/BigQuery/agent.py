@@ -2,7 +2,7 @@
 import logging
 import warnings
 from google.adk import Agent
-from ...config import Config
+from ...shared_libraries.config import Config
 from ...shared_libraries.callbacks import (
     rate_limit_callback,
     before_agent,
@@ -24,7 +24,7 @@ bq_agent = Agent(
     global_instruction="You help an employee of Maisons du Monde with diverse tasks.",
     instruction="Use the BigQuery connector to help the user.",
     name="big_query_agent",
-    tools=connector_tool.get_tools(),
+    tools=[connector_tool],
     before_tool_callback=before_tool,
     before_agent_callback=before_agent,
     before_model_callback=rate_limit_callback,
