@@ -32,13 +32,13 @@ const ChatInput = ({ onSendMessage, onSendImage }: ChatInputProps) => {
     if (file) {
       // Vérifier le type de fichier
       if (!file.type.startsWith('image/')) {
-        alert('Veuillez sélectionner un fichier image.');
+        alert('Please select a valid image file (JPG, PNG, GIF).');
         return;
       }
 
       // Vérifier la taille (limite à 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        alert('Le fichier est trop volumineux. Limite de 5MB.');
+        alert('The image is too heavy. Limit of 5MB.');
         return;
       }
 
@@ -109,7 +109,7 @@ const ChatInput = ({ onSendMessage, onSendImage }: ChatInputProps) => {
         <button 
           onClick={openFileDialog}
           className="flex-shrink-0 p-2 group transition-all"
-          title="Ajouter une image"
+          title="Add an image"
         >
           <Image 
             src="/camera.svg" 
@@ -133,7 +133,7 @@ const ChatInput = ({ onSendMessage, onSendImage }: ChatInputProps) => {
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Quelle est la chaise parfaite pour mon intérieur ?"
+            placeholder="What's the perfect chair for me ?"
             className="w-full bg-transparent resize-none focus:outline-none text-[#345211] placeholder-[#8A9977] text-base"
             rows={1}
             style={{ 
