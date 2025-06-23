@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class AgentModel(BaseModel):
     """Agent model settings."""
 
-    name: str = Field(default="my_agent")
+    name: str = Field(default="agent")
     model: str = Field(default="gemini-2.0-flash-001")
 
 
@@ -26,8 +26,8 @@ class Config(BaseSettings):
         case_sensitive=True,
     )
     agent_settings: AgentModel = Field(default=AgentModel())
-    app_name: str = "my_agent"
-    CLOUD_PROJECT: str = Field(default="mdm-data-prod")
+    app_name: str = "agent"
+    CLOUD_PROJECT: str = Field(default="data-sandbox-410808")
     CLOUD_LOCATION: str = Field(default="europe-west1")
     GENAI_USE_VERTEXAI: str = Field(default="1")
     API_KEY: str | None = Field(default="")

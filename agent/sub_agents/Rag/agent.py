@@ -1,19 +1,3 @@
-# Copyright 2025 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-import os
-
 from google.adk.agents import Agent
 from google.adk.tools.retrieval.vertex_ai_rag_retrieval import VertexAiRagRetrieval
 from vertexai.preview import rag
@@ -30,10 +14,7 @@ ask_vertex_retrieval = VertexAiRagRetrieval(
     ),
     rag_resources=[
         rag.RagResource(
-            # please fill in your own rag corpus
-            # here is a sample rag coprus for testing purpose
-            # e.g. projects/123/locations/us-central1/ragCorpora/456
-            rag_corpus="projects/310119937247/locations/europe-west3/ragCorpora/4611686018427387904"
+            rag_corpus="projects/data-sandbox-410808/locations/europe-west3/ragCorpora/4532873024948404224"
         )
     ],
     similarity_top_k=10,
@@ -43,7 +24,7 @@ ask_vertex_retrieval = VertexAiRagRetrieval(
 rag_agent = Agent(
     model='gemini-2.0-flash-001',
     name='ask_rag_agent',
-    instruction=return_instructions_root(), # A CHANGER AVEC LE PROMPT
+    instruction=return_instructions_root(),
     tools=[
         ask_vertex_retrieval,
     ]

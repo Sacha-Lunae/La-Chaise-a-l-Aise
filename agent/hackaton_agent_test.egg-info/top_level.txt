@@ -1,4 +1,0 @@
-entities
-main_agent
-shared_libraries
-sub_agents

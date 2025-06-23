@@ -48,7 +48,7 @@ export default function PlaygroundPage() {
           const welcomeMessage: MessageType = {
             id: 1,
             type: 'bot',
-            text: "Welcome to La Chaise à l'Aise ! My name is Cherry, your shopping assistant, and I'm here to guide you to find the best chair for your home.\nThere's a lot you can do with me !\nYou should try :\n- asking me for decoration advice\n- send me a chair picture and I'll find the closest looking chairs into our database\n- asking me for info about our products\n- adding items to your basket\nLet's start our journey !",
+            text: "Welcome to La Chaise à l'Aise ! My name is Cherry, your shopping assistant, and I'm here to guide you to find the best chair for your home.\nThere's a lot you can do with me !\nYou should try :\n- ·asking me for decoration advice\n- ·sending me a chair picture and I'll find the closest looking chairs into our database\n- ·asking me for info about our products\n- ·adding items to your basket\n\nLet's start our journey !",
             timestamp: new Date()
           };
           setMessages([welcomeMessage]);

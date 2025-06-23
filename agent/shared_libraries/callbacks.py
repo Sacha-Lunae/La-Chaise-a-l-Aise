@@ -1,19 +1,3 @@
-# Copyright 2025 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-"""Callback functions for FOMC Research Agent."""
-
 import logging
 import time
 
@@ -22,7 +6,9 @@ from google.adk.models import LlmRequest
 from typing import Any, Dict
 from google.adk.tools import BaseTool
 from google.adk.agents.invocation_context import InvocationContext
-from agent.entities.user import User
+from agent.entities.customer import Customer
+
+from agent.shared_libraries.image_tools import extract_image_part, upload_image_to_gcs
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -34,7 +20,8 @@ RPM_QUOTA = 10
 def rate_limit_callback(
     callback_context: CallbackContext, llm_request: LlmRequest
 ) -> None:
-    """Callback function that implements a query rate limit.
+    """Callback function that implements a query rate limit. Ensures the agent pauses if the number of requests
+    exceeds the quota within a certain time period.
 
     Args:
       callback_context: A CallbackContext obj representing the active callback
@@ -43,8 +30,8 @@ def rate_limit_callback(
     """
     for content in llm_request.contents:
         for part in content.parts:
-            if part.text=="":
-                part.text=" "
+            if part.text == "":
+                part.text = " "
 
     now = time.time()
     if "timer_start" not in callback_context.state:
@@ -52,8 +39,7 @@ def rate_limit_callback(
         callback_context.state["timer_start"] = now
         callback_context.state["request_count"] = 1
         logger.debug(
-            "rate_limit_callback [timestamp: %i, "
-            "req_count: 1, elapsed_secs: 0]",
+            "rate_limit_callback [timestamp: %i, req_count: 1, elapsed_secs: 0]",
             now,
         )
         return
@@ -61,8 +47,7 @@ def rate_limit_callback(
     request_count = callback_context.state["request_count"] + 1
     elapsed_secs = now - callback_context.state["timer_start"]
     logger.debug(
-        "rate_limit_callback [timestamp: %i, request_count: %i,"
-        " elapsed_secs: %i]",
+        "rate_limit_callback [timestamp: %i, request_count: %i, elapsed_secs: %i]",
         now,
         request_count,
         elapsed_secs,
@@ -82,7 +67,8 @@ def rate_limit_callback(
 
 
 def lowercase_value(value):
-    """Make dictionary lowercase"""
+    """Recursively lowercases all string values in a dictionary or list.
+    """
     if isinstance(value, dict):
         return (dict(k, lowercase_value(v)) for k, v in value.items())
     elif isinstance(value, str):
@@ -94,20 +80,46 @@ def lowercase_value(value):
         return value
 
 
-# Callback Methods
 def before_tool(
     tool: BaseTool, args: Dict[str, Any], tool_context: CallbackContext
 ):
-
-    # i make sure all values that the agent is sending to tools are lowercase
+    """
+    Callback before a tool is called. Transforms all input args to lowercase.
+    """
     lowercase_value(args)
 
 
-# checking that the user profile is loaded as state.
 def before_agent(callback_context: InvocationContext):
-    if "user:profile" not in callback_context.state:
-        callback_context.state["user:profile"] = User.get_user(
-            "123"
-        ).to_json()
+    """
+    Ensures a customer profile is loaded into state before the agent runs.
+    Also extracts and uploads any image in the original request to GCS.
+    """
+    if "customer:profile" not in callback_context.state:
+        callback_context.state["customer:profile"] = Customer.get_customer("123").to_json()
 
-    logger.info(callback_context.state["user:profile"])
+    logger.info("Loaded customer profile: %s", callback_context.state["customer:profile"])
+
+
+def before_model(callback_context: CallbackContext, llm_request: LlmRequest) -> None:
+    # Rate limiting logic
+    logger.info("Starting rate_limit_callback")
+    rate_limit_callback(callback_context, llm_request)
+    logger.info("Finished rate_limit_callback")
+
+    # Image upload logic
+    try:
+        if llm_request:
+            logger.info("Attempting to upload image to GCS...")
+            image_bytes = extract_image_part(llm_request)
+            if image_bytes:
+                logger.info("Image bytes extracted, uploading...")
+                gcs_uri = upload_image_to_gcs(image_bytes)
+                logger.info(f"Uploaded image to GCS: {gcs_uri}")
+                callback_context.state["uploaded_image_gcs_uri"] = gcs_uri
+                logger.info(f"Image uploaded successfully: {gcs_uri}")
+            else:
+                logger.info("No image found in user request.")
+        else:
+            logger.warning("No original_request found in callback_context.")
+    except Exception as e:
+        logger.warning(f"Image upload failed: {e}")
